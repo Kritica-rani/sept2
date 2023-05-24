@@ -3,10 +3,20 @@ const User = require("../model/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const saltRounds = 10;
+const { validationResult } = require("express-validator");
 
 module.exports.signUp = async (req, res) => {
   try {
+    // validate this data
+    const error = validationResult(req);
+    if (!error.isEmpty()) {
+      return res.status(400).json({
+        message: "Validation Error",
+        data: error,
+      });
+    }
     //1. get the data from req.body
+
     console.log("req.body", req.body);
     const { name, email, password, confirmPassword } = req.body;
 
@@ -84,6 +94,43 @@ module.exports.signIn = async (req, res) => {
       data: {
         token,
       },
+    });
+  } catch (err) {
+    // send error response
+    res.status(500).json({
+      message: "Something went went while logging in",
+      data: {
+        err,
+      },
+    });
+  }
+};
+
+// get all user details
+module.exports.getUserDetails = async (req, res) => {
+  try {
+    //1. get userId from req.user
+    console.log("userId", req.user);
+    //destructuring
+    const { _id: userId } = req.user;
+    //2. fetch userDetail from User Model using userId
+    const userDetails = await User.findById(
+      userId,
+      "name email quotation"
+    ).populate([
+      {
+        path: "quotation",
+        //only for example
+        populate: {
+          path: "user",
+          select: "name",
+        },
+      },
+    ]);
+    // response with userDetails
+    return res.status(200).json({
+      message: "User Found Successfully",
+      data: userDetails,
     });
   } catch (err) {
     // send error response

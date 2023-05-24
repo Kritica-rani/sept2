@@ -1,5 +1,5 @@
 const express = require("express");
-const port = 8000;
+const port = 6000;
 const app = express();
 const db = require("./config/mongoose");
 const jwt = require("./config/passport_jwt");

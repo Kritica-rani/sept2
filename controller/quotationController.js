@@ -1,11 +1,22 @@
 const Quotation = require("../model/quotation");
 const { find } = require("../model/user");
 const User = require("../model/user");
+const { validationResult } = require("express-validator");
 
 // controller to create quotation
 module.exports.createQuotation = async (req, res) => {
   try {
+    const error = validationResult(req);
     const { content } = req.body;
+
+    console.log("error", error);
+    if (!error.isEmpty()) {
+      return res.status(400).json({
+        message: "Validation Error",
+        data: error,
+      });
+    }
+
     const userId = req.user._id;
     // const {_id : userId} = req.user
     console.log("req.user", req.user);
@@ -21,6 +32,7 @@ module.exports.createQuotation = async (req, res) => {
     }
     const user = await User.findById(userId);
     user.quotation.push(quotation._id);
+    user.save();
     return res.status(201).json({
       message: "Quotation created Succesfully",
       data: { quotation },
