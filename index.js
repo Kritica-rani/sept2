@@ -3,7 +3,9 @@ const port = 6000;
 const app = express();
 const db = require("./config/mongoose");
 const jwt = require("./config/passport_jwt");
+const cors = require("cors");
 
+app.use(cors());
 app.use(express.urlencoded());
 app.use("/", require("./router/index"));
 
